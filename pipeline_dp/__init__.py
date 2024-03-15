@@ -38,5 +38,6 @@ from pipeline_dp.pipeline_backend import BeamBackend
 from pipeline_dp.pipeline_backend import LocalBackend
 from pipeline_dp.pipeline_backend import PipelineBackend
 from pipeline_dp.pipeline_backend import SparkRDDBackend
+from pipeline_dp.pipeline_backend import SparkDataFrameBackend
 
 __version__ = '0.2.2rc2'

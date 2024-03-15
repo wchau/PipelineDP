@@ -34,8 +34,7 @@ except:
     # It is fine if Apache Beam is not installed, other backends can be used.
     pass
 
-
-class PipelineBackend(abc.ABC):
+class CommonPipelineBackend(abc.ABC):
     """Interface implemented by the pipeline backends compatible with PipelineDP."""
 
     def to_collection(self, collection_or_iterable, col, stage_name: str):
@@ -220,7 +219,7 @@ class UniqueLabelsGenerator:
                 return label_candidate
 
 
-class BeamBackend(PipelineBackend):
+class BeamBackend(CommonPipelineBackend):
     """Apache Beam adapter."""
 
     def __init__(self, suffix: str = ""):
@@ -374,7 +373,7 @@ class BeamBackend(PipelineBackend):
         return col
 
 
-class SparkRDDBackend(PipelineBackend):
+class SparkRDDBackend(CommonPipelineBackend):
     """Apache Spark RDD adapter."""
 
     def __init__(self, sc: 'SparkContext'):
@@ -474,7 +473,7 @@ class SparkRDDBackend(PipelineBackend):
         raise NotImplementedError("to_list is not implement in SparkBackend.")
 
 
-class LocalBackend(PipelineBackend):
+class LocalBackend(CommonPipelineBackend):
     """Local Pipeline adapter."""
 
     def to_multi_transformable_collection(self, col):

@@ -34,6 +34,8 @@ except:
     # It is fine if Apache Beam is not installed, other backends can be used.
     pass
 
+from pyspark.sql.functions import col, udf, struct
+from pyspark.sql.types import StructField, StructType, IntegerType
 
 class PipelineBackend(abc.ABC):
     """Interface implemented by the pipeline backends compatible with PipelineDP."""
@@ -468,6 +470,107 @@ class SparkRDDBackend(PipelineBackend):
         return self._sc.union(cols)
 
     def distinct(self, col, stage_name: str):
+        return col.distinct()
+
+    def to_list(self, col, stage_name: str):
+        raise NotImplementedError("to_list is not implement in SparkBackend.")
+    
+
+class SparkDataFrameBackend(PipelineBackend):
+    """Apache Spark DataFrame adapter."""
+
+    def __init__(self, sc: 'SparkContext'):
+        self._sc = sc
+
+    def to_collection(self, collection_or_iterable, col, stage_name: str):
+        # TODO: implement it and remove workaround in map() below.
+        return collection_or_iterable
+
+    def map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
+        udf_func = udf(df, spark_type_hint)
+        return df.withColumn("pipelineDpOutput", udf_func(struct([col(x) for x in df.columns]))).select("pipelineDpOutput.*")
+        raise NotImplementedError()
+        return df.map(fn)
+
+    def map_with_side_inputs(self, df, fn, side_input_cols, stage_name: str):
+        raise NotImplementedError("map_with_side_inputs "
+                                  "is not implement in SparkBackend.")
+
+    def flat_map(self, df, fn, stage_name: str = None):
+        raise NotImplementedError()
+        return df.flatMap(fn)
+
+    def map_tuple(self, df, fn, stage_name: str = None):
+        raise NotImplementedError()
+        return df.map(lambda x: fn(*x))
+
+    def map_values(self, df, fn, stage_name: str = None):
+        raise NotImplementedError()
+        return df.mapValues(fn)
+
+    def group_by_key(self, df, stage_name: str = None):
+        raise NotImplementedError()
+        return df.groupByKey()
+
+    def filter(self, df, fn, stage_name: str = None):
+        raise NotImplementedError()
+        return df.filter(fn)
+
+    def filter_by_key(self, df, keys_to_keep, stage_name: str = None):
+        raise NotImplementedError()
+        if keys_to_keep is None:
+            raise TypeError("Must provide a valid keys to keep")
+
+        if isinstance(keys_to_keep, (list, set)):
+            # Keys to keep are local.
+            if not isinstance(keys_to_keep, set):
+                keys_to_keep = set(keys_to_keep)
+            return rdd.filter(lambda x: x[0] in keys_to_keep)
+
+        else:
+            filtering_rdd = keys_to_keep.map(lambda x: (x, None))
+            return rdd.join(filtering_rdd).map(lambda x: (x[0], x[1][0]))
+
+    def keys(self, df, stage_name: str = None):
+        raise NotImplementedError()
+        return rdd.keys()
+
+    def values(self, df, stage_name: str = None):
+        raise NotImplementedError()
+        return rdd.values()
+
+    def sample_fixed_per_key(self, df, n: int, stage_name: str = None):
+        """See base class. The sampling is not guaranteed to be uniform."""
+        raise NotImplementedError()
+        return rdd.mapValues(lambda x: [x]).reduceByKey(
+            lambda x, y: random.sample(x + y, min(len(x) + len(y), n)))
+
+    def count_per_element(self, df, stage_name: str = None):
+        raise NotImplementedError()
+        return rdd.map(lambda x: (x, 1)).reduceByKey(operator.add)
+
+    def sum_per_key(self, df, stage_name: str = None):
+        raise NotImplementedError()
+        return rdd.reduceByKey(operator.add)
+
+    def combine_accumulators_per_key(self,
+                                     df,
+                                     combiner: dp_combiners.Combiner,
+                                     stage_name: str = None):
+        raise NotImplementedError()
+        return rdd.reduceByKey(
+            lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2))
+
+    def reduce_per_key(self, df, fn: Callable, stage_name: str):
+        raise NotImplementedError()
+        return rdd.reduceByKey(fn)
+
+    def flatten(self, cols, stage_name: str = None):
+        raise NotImplementedError()
+        return self._sc.union(cols)
+
+    def distinct(self, col, stage_name: str):
+        raise NotImplementedError()
         return col.distinct()
 
     def to_list(self, col, stage_name: str):

@@ -20,6 +20,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import pipeline_dp
 import pyspark
+from pyspark.sql.functions import lit, struct
 
 SparkDataFrame = pyspark.sql.dataframe.DataFrame
 
@@ -47,92 +48,6 @@ class ContributionBounds:
     max_contributions_per_partition: Optional[int] = None
     min_value: Optional[float] = None
     max_value: Optional[float] = None
-
-
-class DataFrameConvertor(abc.ABC):
-    """Base class for conversion between DataFrames and Collections."""
-
-    @abc.abstractmethod
-    def dataframe_to_collection(df, columns: Columns):
-        pass
-
-    @abc.abstractmethod
-    def collection_to_dataframe(col, metric_output_columns: Sequence[str]):
-        pass
-
-
-class SparkConverter(DataFrameConvertor):
-    """Convertor between RDD and Spark DataFrame."""
-
-    def __init__(self, spark: pyspark.sql.SparkSession):
-        self._spark = spark
-        self._partition_key_schema = None
-
-    def dataframe_to_collection(self, df: SparkDataFrame,
-                                columns: Columns) -> pyspark.RDD:
-        self._save_partition_key_schema(df, columns.partition_key)
-        columns_to_keep = [columns.privacy_key]
-        if isinstance(columns.partition_key, str):
-            num_partition_columns = 1
-            columns_to_keep.append(columns.partition_key)
-        else:  # Sequence[str], multiple columns
-            num_partition_columns = len(columns.partition_key)
-            columns_to_keep.extend(columns.partition_key)
-        value_present = columns.value is not None
-        if value_present:
-            columns_to_keep.append(columns.value)
-
-        df = df[columns_to_keep]  # leave only needed columns.
-
-        def extractor(row):
-            privacy_key = row[0]
-            partition_key = row[1] if num_partition_columns == 1 else row[
-                1:1 + num_partition_columns]
-            value = row[1 + num_partition_columns] if value_present else 0
-            return (privacy_key, partition_key, value)
-
-        return df.rdd.map(extractor)
-
-    def _save_partition_key_schema(self, df: SparkDataFrame,
-                                   partition_key: Union[str, Sequence[str]]):
-        col_name_to_schema = dict((col.name, col) for col in df.schema)
-        self._partition_key_schema = []
-        if isinstance(partition_key, str):
-            self._partition_key_schema.append(col_name_to_schema[partition_key])
-        else:
-            for column_name in partition_key:
-                self._partition_key_schema.append(
-                    col_name_to_schema[column_name])
-
-    def collection_to_dataframe(
-            self, col: pyspark.RDD,
-            metric_output_columns: Sequence[str]) -> SparkDataFrame:
-        schema_fields = copy.deepcopy(self._partition_key_schema)
-        float_type = pyspark.sql.types.DoubleType()
-        for metric_column in metric_output_columns:
-            schema_fields.append(
-                pyspark.sql.types.StructField(metric_column,
-                                              float_type,
-                                              nullable=False))
-        schema = pyspark.sql.types.StructType(schema_fields)
-        return self._spark.createDataFrame(col, schema)
-
-
-def _create_backend_for_dataframe(
-        df: SparkDataFrame) -> pipeline_dp.PipelineBackend:
-    """Creates a pipeline backend based on type of DataFrame."""
-    if isinstance(df, SparkDataFrame):
-        return pipeline_dp.SparkRDDBackend(df.sparkSession.sparkContext)
-    raise NotImplementedError(
-        f"Dataframes of type {type(df)} not yet supported")
-
-
-def _create_dataframe_converter(df: SparkDataFrame) -> DataFrameConvertor:
-    """Creates a DataConvert based on type of DataFrame."""
-    if isinstance(df, SparkDataFrame):
-        return SparkConverter(df.sparkSession)
-    raise NotImplementedError(
-        f"Dataframes of type {type(df)} not yet supported")
 
 
 class Query:
@@ -176,9 +91,15 @@ class Query:
         Returns:
             DataFrame with DP aggregation result.
         """
-        converter = _create_dataframe_converter(self._df)
-        backend = _create_backend_for_dataframe(self._df)
-        col = converter.dataframe_to_collection(self._df, self._columns)
+        backend = pipeline_dp.SparkDataFrameBackend(df.sparkSession.sparkContext)
+        if isinstance(self._columns.partition_key, str):
+            partition_select = self._columns.partition_key
+        else:  # Sequence[str], multiple columns
+            partition_select = struct(*self._columns.partition_key)
+        value_select = self._columns.value or lit(0)
+
+        df = self._df.select(self._columns.privacy_key, partition_select, value_select)
+    
         budget_accountant = pipeline_dp.NaiveBudgetAccountant(
             total_epsilon=budget.epsilon, total_delta=budget.delta)
 
@@ -200,7 +121,7 @@ class Query:
             value_extractor=lambda row: row[2])
 
         dp_result = dp_engine.aggregate(
-            col,
+            df,
             params,
             data_extractors,
             public_partitions=self._public_partitions)
@@ -240,8 +161,7 @@ class Query:
         dp_result = backend.map(dp_result, convert_to_partition_metrics_tuple,
                                 "Convert to NamedTuple")
         # dp_result: PartitionMetricsTuple
-
-        return converter.collection_to_dataframe(dp_result, output_columns)
+        return dp_result
 
 
 @dataclass

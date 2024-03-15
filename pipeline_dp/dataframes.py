@@ -91,7 +91,7 @@ class Query:
         Returns:
             DataFrame with DP aggregation result.
         """
-        backend = pipeline_dp.SparkDataFrameBackend(df.sparkSession.sparkContext)
+        backend = pipeline_dp.SparkDataFrameBackend(self._df.sparkSession.sparkContext)
         if isinstance(self._columns.partition_key, str):
             partition_select = self._columns.partition_key
         else:  # Sequence[str], multiple columns

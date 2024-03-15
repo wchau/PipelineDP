@@ -708,7 +708,7 @@ class _LazyMultiProcCountIterator(_LazyMultiProcIterator):
             self._outputs = self.results_dict.items()
 
 
-class MultiProcLocalBackend(PipelineBackend):
+class MultiProcLocalBackend(CommonPipelineBackend):
     """Warning: this class is experimental."""
 
     def __init__(self,
@@ -829,12 +829,12 @@ class Annotator(abc.ABC):
     pipeline."""
 
     @abc.abstractmethod
-    def annotate(self, col, backend: PipelineBackend, stage_name: str,
+    def annotate(self, col, backend: CommonPipelineBackend, stage_name: str,
                  **kwargs):
         """Annotates a collection.
 
         Args:
-          backend: PipelineBackend of the pipeline.
+          backend: CommonPipelineBackend of the pipeline.
           stage_name: annotation stage_name, it needs to be correctly propagated
           kwargs: additional arguments about the current aggregation.
 

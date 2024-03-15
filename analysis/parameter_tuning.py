@@ -313,7 +313,7 @@ def _find_candidates_bins_max_values_subsample(
 
 
 def tune(col,
-         backend: pipeline_backend.PipelineBackend,
+         backend: pipeline_backend.CommonPipelineBackend,
          contribution_histograms: histograms.DatasetHistograms,
          options: TuneOptions,
          data_extractors: Union[pipeline_dp.DataExtractors,
@@ -338,7 +338,7 @@ def tune(col,
     Args:
         col: collection where all elements are of the same type.
           contribution_histograms:
-        backend: PipelineBackend with which the utility analysis will be run.
+        backend: CommonPipelineBackend with which the utility analysis will be run.
         contribution_histograms: contribution histograms that should be
          computed with compute_contribution_histograms().
         options: options for tuning.

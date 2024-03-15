@@ -119,7 +119,7 @@ class SparkConverter(DataFrameConvertor):
 
 
 def _create_backend_for_dataframe(
-        df: SparkDataFrame) -> pipeline_dp.PipelineBackend:
+        df: SparkDataFrame) -> pipeline_dp.CommonPipelineBackend:
     """Creates a pipeline backend based on type of DataFrame."""
     if isinstance(df, SparkDataFrame):
         return pipeline_dp.SparkRDDBackend(df.sparkSession.sparkContext)

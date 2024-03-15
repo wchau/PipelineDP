@@ -59,13 +59,13 @@ def _bin_lower_index(lowers: List[float], value: float) -> int:
     return bin_lower_idx
 
 
-def _compute_frequency_histogram(col, backend: pipeline_backend.PipelineBackend,
+def _compute_frequency_histogram(col, backend: pipeline_backend.CommonPipelineBackend,
                                  name: hist.HistogramType):
     """Computes histogram of element frequencies in collection.
 
     Args:
         col: collection with positive integers.
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
         name: name which is assigned to the computed histogram.
     Returns:
         1 element collection which contains hist.Histogram.
@@ -79,13 +79,13 @@ def _compute_frequency_histogram(col, backend: pipeline_backend.PipelineBackend,
 
 
 def _compute_weighted_frequency_histogram(
-        col, backend: pipeline_backend.PipelineBackend,
+        col, backend: pipeline_backend.CommonPipelineBackend,
         name: hist.HistogramType):
     """Computes histogram of element frequencies in collection.
 
     Args:
         col: collection of (positive integers, weight).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
         name: name which is assigned to the computed histogram.
     Returns:
         1 element collection which contains hist.Histogram.
@@ -103,7 +103,7 @@ def _compute_weighted_frequency_histogram(
 
 
 def _compute_frequency_histogram_helper(
-        col, backend: pipeline_backend.PipelineBackend,
+        col, backend: pipeline_backend.CommonPipelineBackend,
         name: hist.HistogramType):
     """Computes histogram of element frequencies in collection.
 
@@ -112,7 +112,7 @@ def _compute_frequency_histogram_helper(
 
     Args:
         col: collection of (n:int, frequency_of_n: int)
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
         name: name which is assigned to the computed histogram.
     Returns:
         1 element collection which contains hist.Histogram.
@@ -133,7 +133,7 @@ def _compute_frequency_histogram_helper(
 
 
 def _compute_frequency_histogram_helper_with_lowers(
-        col, backend: pipeline_backend.PipelineBackend,
+        col, backend: pipeline_backend.CommonPipelineBackend,
         name: hist.HistogramType, lowers_col):
     """Computes histogram of element frequencies in collection.
 
@@ -141,7 +141,7 @@ def _compute_frequency_histogram_helper_with_lowers(
 
     Args:
         col: collection of (value:float, frequency_of_value: int)
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
         name: name which is assigned to the computed histogram.
         lowers_col: collection of bin lowers of the histogram, necessary because
          we process float values, and they will be clipped to the nearest lower.
@@ -174,7 +174,7 @@ def _compute_frequency_histogram_helper_with_lowers(
 
 
 def _convert_frequency_bins_into_histogram(
-        col, backend: pipeline_backend.PipelineBackend, name):
+        col, backend: pipeline_backend.CommonPipelineBackend, name):
     """Converts (lower_bin_value, hist.FrequencyBin) into histogram.
 
     The input collection is not expected to have frequency bins reduced per
@@ -226,7 +226,7 @@ def _list_to_contribution_histograms(
 
 
 def _to_dataset_histograms(histogram_list,
-                           backend: pipeline_backend.PipelineBackend):
+                           backend: pipeline_backend.CommonPipelineBackend):
     """Combines histogram_list to hist.DatasetHistograms."""
     histograms = backend.flatten(histogram_list, "Histograms to one collection")
     # histograms: 5 elements collection with elements ContributionHistogram
@@ -240,7 +240,7 @@ def _to_dataset_histograms(histogram_list,
 
 ############## Computing histograms on raw datasets ##########################
 def _compute_l0_contributions_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of the number of distinct partitions contributed by a privacy id.
 
     This histogram contains: number of privacy ids which contributes 1 record, 2
@@ -249,7 +249,7 @@ def _compute_l0_contributions_histogram(
     Args:
         col: collection with elements (privacy_id, partition_key).
           Assumption: 'col' contains distinct elements!
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -267,7 +267,7 @@ def _compute_l0_contributions_histogram(
 
 
 def _compute_l1_contributions_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of the number of distinct records contributed by a privacy id.
 
     This histogram contains: number of privacy ids which contributes to 1
@@ -275,7 +275,7 @@ def _compute_l1_contributions_histogram(
 
     Args:
         col: collection with elements (privacy_id, partition_key).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -293,7 +293,7 @@ def _compute_l1_contributions_histogram(
 
 
 def _compute_linf_contributions_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of per partition privacy id contributions.
 
     This histogram contains: the number of (privacy id, partition_key)-pairs
@@ -301,7 +301,7 @@ def _compute_linf_contributions_histogram(
 
     Args:
         col: collection with elements (privacy_id, partition_key).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -317,7 +317,7 @@ def _compute_linf_contributions_histogram(
 
 
 def _compute_linf_sum_contributions_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of per partition privacy id contributions.
 
     This histogram contains: the number of (privacy id, partition_key)-pairs
@@ -327,7 +327,7 @@ def _compute_linf_sum_contributions_histogram(
 
     Args:
         col: collection with elements ((privacy_id, partition_key), value).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -344,7 +344,7 @@ def _compute_linf_sum_contributions_histogram(
 
 
 def _min_max_lowers(col, number_of_buckets,
-                    backend: pipeline_backend.PipelineBackend):
+                    backend: pipeline_backend.CommonPipelineBackend):
     """Returns bin lowers equally distributed between min and max elements of
     the collection.
 
@@ -353,7 +353,7 @@ def _min_max_lowers(col, number_of_buckets,
 
     Args:
         col: collection of numbers.
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         collection of lowers (float,).
     """
@@ -371,7 +371,7 @@ def _min_max_lowers(col, number_of_buckets,
 
 
 def _compute_partition_count_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of counts per partition.
 
     This histogram contains: the number of partitions with total count of
@@ -379,7 +379,7 @@ def _compute_partition_count_histogram(
 
     Args:
         col: collection with elements (privacy_id, partition_key).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -398,7 +398,7 @@ def _compute_partition_count_histogram(
 
 
 def _compute_partition_privacy_id_count_histogram(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of privacy id counts per partition.
 
     This histogram contains: the number of partitions with privacy_id_count=1,
@@ -407,7 +407,7 @@ def _compute_partition_privacy_id_count_histogram(
     Args:
         col: collection with elements (privacy_id, partition_key).
          Assumption: 'col' contains distinct elements!
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -426,7 +426,7 @@ def _compute_partition_privacy_id_count_histogram(
 
 
 def _compute_partition_sum_histogram(col,
-                                     backend: pipeline_backend.PipelineBackend):
+                                     backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of sum per partition.
 
     This histogram contains: the number of partition_keys which have sum of
@@ -435,7 +435,7 @@ def _compute_partition_sum_histogram(col,
 
     Args:
         col: collection with elements ((privacy_id, partition_key), value).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed hist.Histogram.
     """
@@ -454,12 +454,12 @@ def _compute_partition_sum_histogram(col,
 
 
 def compute_dataset_histograms(col, data_extractors: pipeline_dp.DataExtractors,
-                               backend: pipeline_backend.PipelineBackend):
+                               backend: pipeline_backend.CommonPipelineBackend):
     """Computes dataset histograms.
 
     Args:
         col: collection with elements of the same type.
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains a histograms.DatasetHistograms
         object.
@@ -519,7 +519,7 @@ def compute_dataset_histograms(col, data_extractors: pipeline_dp.DataExtractors,
 
 
 def _compute_l0_contributions_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of the number of distinct partitions contributed by a privacy id.
 
     This histogram contains: number of privacy ids which contributes to 1
@@ -528,7 +528,7 @@ def _compute_l0_contributions_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -544,7 +544,7 @@ def _compute_l0_contributions_histogram_on_preaggregated_data(
 
 
 def _compute_l1_contributions_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of the number of distinct partitions contributed by a privacy id.
 
     This histogram contains: number of privacy ids which contributes to 1
@@ -553,7 +553,7 @@ def _compute_l1_contributions_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -569,7 +569,7 @@ def _compute_l1_contributions_histogram_on_preaggregated_data(
 
 
 def _compute_linf_contributions_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of per partition privacy id contributions.
 
     This histogram contains: the number of (privacy id, partition_key)-pairs
@@ -578,7 +578,7 @@ def _compute_linf_contributions_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -593,7 +593,7 @@ def _compute_linf_contributions_histogram_on_preaggregated_data(
 
 
 def _compute_linf_sum_contributions_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of per partition privacy id contributions.
 
     This histogram contains: the number of (privacy id, partition_key)-pairs
@@ -604,7 +604,7 @@ def _compute_linf_sum_contributions_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -624,7 +624,7 @@ def _compute_linf_sum_contributions_histogram_on_preaggregated_data(
 
 
 def _compute_partition_count_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of counts per partition.
 
     This histogram contains: the number of partitions with total count of
@@ -633,7 +633,7 @@ def _compute_partition_count_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -652,7 +652,7 @@ def _compute_partition_count_histogram_on_preaggregated_data(
 
 
 def _compute_partition_sum_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes histogram of counts per partition.
 
     This histogram contains: the number of partition_keys which have sum of
@@ -662,7 +662,7 @@ def _compute_partition_sum_histogram_on_preaggregated_data(
     Args:
         col: collection with a pre-aggregated dataset, each element is
         (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
     Returns:
         1 element collection, which contains the computed histograms.Histogram.
     """
@@ -685,7 +685,7 @@ def _compute_partition_sum_histogram_on_preaggregated_data(
 
 
 def _compute_partition_privacy_id_count_histogram_on_preaggregated_data(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Computes a histogram of privacy id counts per partition.
 
     This histogram contains: the number of partitions with privacy_id_count=1,
@@ -694,7 +694,7 @@ def _compute_partition_privacy_id_count_histogram_on_preaggregated_data(
     Args:
         col:collection with a pre-aggregated dataset, each element is
           (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
 
     Returns:
       1 element collection, which contains the computed histograms.Histogram.
@@ -712,13 +712,13 @@ def _compute_partition_privacy_id_count_histogram_on_preaggregated_data(
 
 def compute_dataset_histograms_on_preaggregated_data(
         col, data_extractors: pipeline_dp.PreAggregateExtractors,
-        backend: pipeline_backend.PipelineBackend):
+        backend: pipeline_backend.CommonPipelineBackend):
     """Computes dataset histograms on pre-aggregated dataset.
 
     Args:
         col: collection with a pre-aggregated dataset, each element is
           (partition_key, (count, sum, n_partitions, n_contributions)).
-        backend: PipelineBackend to run operations on the collection.
+        backend: CommonPipelineBackend to run operations on the collection.
 
     Returns:
         1 element collection, which contains a histograms.DatasetHistograms object.

@@ -71,7 +71,7 @@ def _extract_fn(data_extractors: pipeline_dp.DataExtractors,
 class DataPeeker:
     """A helper class that contains methods to for privacy utility analysis."""
 
-    def __init__(self, ops: pipeline_dp.pipeline_backend.PipelineBackend):
+    def __init__(self, ops: pipeline_dp.pipeline_backend.CommonPipelineBackend):
         self._be = ops
 
     def sketch(self, input_data: DataType, params: SampleParams,

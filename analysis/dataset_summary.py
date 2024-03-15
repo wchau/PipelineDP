@@ -30,7 +30,7 @@ _EMPTY_PUBLIC = 2
 _DATASET_NONPUBLIC = 3
 
 
-def compute_public_partitions_summary(col, backend: pipeline_dp.PipelineBackend,
+def compute_public_partitions_summary(col, backend: pipeline_dp.CommonPipelineBackend,
                                       extractors: pipeline_dp.DataExtractors,
                                       public_partitions):
     """Computes Public Partitions Summary from dataset and public partitions.

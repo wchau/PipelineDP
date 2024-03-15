@@ -17,7 +17,7 @@ import analysis.contribution_bounders as utility_contribution_bounders
 
 
 def preaggregate(col,
-                 backend: pipeline_dp.PipelineBackend,
+                 backend: pipeline_dp.CommonPipelineBackend,
                  data_extractors: pipeline_dp.DataExtractors,
                  partitions_sampling_prob: float = 1):
     """Preaggregates data from a collection.
@@ -32,7 +32,7 @@ def preaggregate(col,
 
     Args:
         col: collection where all elements are of the same type.
-        backend: PipelineBackend for performing transformations on collections.
+        backend: CommonPipelineBackend for performing transformations on collections.
         data_extractors: functions that extract needed pieces of information
           from elements of 'col'.
         partitions_sampling_prob: the probability with which each partition

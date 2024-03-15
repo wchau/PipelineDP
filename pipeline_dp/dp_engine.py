@@ -32,7 +32,7 @@ class DPEngine:
     """Performs DP aggregations."""
 
     def __init__(self, budget_accountant: 'BudgetAccountant',
-                 backend: 'PipelineBackend'):
+                 backend: 'CommonPipelineBackend'):
         self._budget_accountant = budget_accountant
         self._backend = backend
         self._report_generators = []

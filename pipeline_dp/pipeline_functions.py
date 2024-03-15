@@ -20,14 +20,14 @@ from typing import Type, Dict, Any, Callable, TypeVar, Iterable, List
 from pipeline_dp import pipeline_backend
 
 
-def key_by(backend: pipeline_backend.PipelineBackend, col,
+def key_by(backend: pipeline_backend.CommonPipelineBackend, col,
            key_extractor: Callable, stage_name: str):
     return backend.map(
         col, lambda el: (key_extractor(el), el),
         f"{stage_name}: key collection by keys from key extractor.")
 
 
-def size(backend: pipeline_backend.PipelineBackend, col, stage_name: str):
+def size(backend: pipeline_backend.CommonPipelineBackend, col, stage_name: str):
     """Returns a one element collection that contains the size of the input
     collection."""
 
@@ -38,7 +38,7 @@ def size(backend: pipeline_backend.PipelineBackend, col, stage_name: str):
     return backend.values(col, f"{stage_name}: dropping the fake_common_key")
 
 
-def collect_to_container(backend: pipeline_backend.PipelineBackend,
+def collect_to_container(backend: pipeline_backend.CommonPipelineBackend,
                          cols: Dict[str, Any], container_class: Type,
                          stage_name: str):
     """Collects pCollections to one collection containing one element of
@@ -99,7 +99,7 @@ def collect_to_container(backend: pipeline_backend.PipelineBackend,
                        f"{stage_name}: construct container class from inputs")
 
 
-def min_max_elements(backend: pipeline_backend.PipelineBackend, col,
+def min_max_elements(backend: pipeline_backend.CommonPipelineBackend, col,
                      stage_name: str):
     col = backend.map(col, lambda x: (None, (x, x)),
                       f"{stage_name}: key by dummy key")  # None is dummy key

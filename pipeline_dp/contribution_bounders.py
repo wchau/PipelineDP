@@ -27,7 +27,7 @@ class ContributionBounder(abc.ABC):
 
     @abc.abstractmethod
     def bound_contributions(self, col, params: pipeline_dp.AggregateParams,
-                            backend: pipeline_backend.PipelineBackend,
+                            backend: pipeline_backend.CommonPipelineBackend,
                             aggregate_fn: Callable):
         """Bound contributions of privacy id.
 
@@ -196,7 +196,7 @@ class SamplingCrossPartitionContributionBounder(ContributionBounder):
 
 
 def collect_values_per_partition_key_per_privacy_id(
-        col, backend: pipeline_backend.PipelineBackend):
+        col, backend: pipeline_backend.CommonPipelineBackend):
     """Collects values into a list for each privacy_id and partition_key.
 
     The output collection is a mapping from privacy_id (i.e. each privacy_id

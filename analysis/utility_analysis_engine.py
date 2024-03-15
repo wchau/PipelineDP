@@ -35,7 +35,7 @@ class UtilityAnalysisEngine(pipeline_dp.DPEngine):
     """
 
     def __init__(self, budget_accountant: budget_accounting.BudgetAccountant,
-                 backend: pipeline_backend.PipelineBackend):
+                 backend: pipeline_backend.CommonPipelineBackend):
         super().__init__(budget_accountant, backend)
         self._is_public_partitions = None
 

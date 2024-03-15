@@ -41,7 +41,7 @@ BUCKET_BOUNDS = _generate_bucket_bounds()
 
 def perform_utility_analysis(
         col,
-        backend: pipeline_backend.PipelineBackend,
+        backend: pipeline_backend.CommonPipelineBackend,
         options: analysis.UtilityAnalysisOptions,
         data_extractors: Union[pipeline_dp.DataExtractors,
                                pipeline_dp.PreAggregateExtractors],
@@ -50,7 +50,7 @@ def perform_utility_analysis(
 
     Args:
       col: collection where all elements are of the same type.
-      backend: PipelineBackend with which the utility analysis will be run.
+      backend: CommonPipelineBackend with which the utility analysis will be run.
       options: options for utility analysis.
       data_extractors: functions that extract needed pieces of information
         from elements of 'col'. In case if the analysis performed on

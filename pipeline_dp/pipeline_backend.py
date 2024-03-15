@@ -487,7 +487,7 @@ class SparkDataFrameBackend(PipelineBackend):
         return collection_or_iterable
 
     def map(self, df, fn, stage_name: str = None):
-        udf_func = udf(df)
+        udf_func = udf(fn)
         return df.withColumn("pipelineDpOutput", udf_func(struct([col(x) for x in df.columns]))).select("pipelineDpOutput.*")
         raise NotImplementedError()
         return df.map(fn)

@@ -99,7 +99,6 @@ class Query:
         value_select = self._columns.value or lit(0)
 
         df = self._df.select(self._columns.privacy_key, partition_select, value_select)
-        print(df.schema)
     
         budget_accountant = pipeline_dp.NaiveBudgetAccountant(
             total_epsilon=budget.epsilon, total_delta=budget.delta)

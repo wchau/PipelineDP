@@ -501,7 +501,7 @@ class SparkDataFrameBackend(PipelineBackend):
         return df.flatMap(fn)
 
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
-        self.map(df, lambda x: fn(**x), fn, stage_name, spark_type_hint)
+        self.map(df, lambda x: fn(**x), stage_name, spark_type_hint)
 
     def map_values(self, df, fn, stage_name: str = None):
         raise NotImplementedError()

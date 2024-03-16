@@ -85,12 +85,17 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         col = backend.map_values(
             col, aggregate_fn,
             "Apply aggregate_fn after per partition bounding",
-            spark_type_hint = StructType([StructField("pidPk", StructType([col.schema[0], col.schema[1]]), True), StructField("acc", LongType(), True)]))
+            spark_type_hint = StructType([col.schema[0], StructField("acc", LongType(), True)]))
         # ((privacy_id, partition_key), accumulator)
         # Cross partition bounding
         col = backend.map_tuple(
             col, lambda pid_pk, v: (pid_pk[0], (pid_pk[1], v)),
-            "Rekey to (privacy_id, (partition_key, accumulator))")
+            "Rekey to (privacy_id, (partition_key, accumulator))",
+            spark_type_hint = StructType([
+                col.schema[0].dataType[0],
+                StructField("pkV", StructType([col.schema[0].dataType[1], col.schema[1]]))
+            ])
+        )
         col = backend.sample_fixed_per_key(col,
                                            params.max_partitions_contributed,
                                            "Sample per privacy_id")

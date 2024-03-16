@@ -21,7 +21,7 @@ import pipeline_dp
 from pipeline_dp import pipeline_backend
 from pipeline_dp import sampling_utils
 
-from pyspark.sql.types import StructType
+from pyspark.sql.types import StructField, StructType
 
 
 class ContributionBounder(abc.ABC):
@@ -73,7 +73,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         col = backend.map_tuple(
             col, lambda pid, pk, v: ((pid, pk), v),
             "Rekey to ( (privacy_id, partition_key), value))",
-            StructType([StructType([col.schema[0], col.schema[1]]), col.schema[2]]))
+            StructType([StructField("pidPk", StructType([col.schema[0], col.schema[1]]), True), col.schema[2]]))
         col = backend.sample_fixed_per_key(
             col, params.max_contributions_per_partition,
             "Sample per (privacy_id, partition_key)")

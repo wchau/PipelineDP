@@ -21,6 +21,8 @@ import pipeline_dp
 from pipeline_dp import pipeline_backend
 from pipeline_dp import sampling_utils
 
+from pyspark.sql.types import StructType
+
 
 class ContributionBounder(abc.ABC):
     """Interface for objects which perform contribution bounding."""

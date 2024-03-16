@@ -491,7 +491,9 @@ class SparkDataFrameBackend(PipelineBackend):
         def pandasFn(iterator):
             for pdf in iterator:
                 yield pd.DataFrame(pdf.apply(fn, axis=1).to_list())
-        return df.mapInPandas(pandasFn, spark_type_hint)
+        a = df.mapInPandas(pandasFn, spark_type_hint)
+        print(a.collect())
+        return a
 
     def map_with_side_inputs(self, df, fn, side_input_cols, stage_name: str):
         raise NotImplementedError("map_with_side_inputs "

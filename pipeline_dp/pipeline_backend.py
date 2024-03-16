@@ -497,9 +497,11 @@ class SparkDataFrameBackend(PipelineBackend):
         raise NotImplementedError("map_with_side_inputs "
                                   "is not implement in SparkBackend.")
 
-    def flat_map(self, df, fn, stage_name: str = None):
-        raise NotImplementedError()
-        return df.flatMap(fn)
+    def flat_map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
+        def pandasFn(iterator):
+            for pdf in iterator:
+                yield pd.DataFrame(pdf.apply(fn, axis=1).list.flatten().to_list())
+        return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
         return self.map(df, lambda x: fn(*x), stage_name, spark_type_hint)

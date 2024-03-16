@@ -99,6 +99,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         col = backend.sample_fixed_per_key(col,
                                            params.max_partitions_contributed,
                                            "Sample per privacy_id")
+        print(col.schema)
 
         report_generator.add_stage(
             f"Cross-partition contribution bounding: for each privacy_id "
@@ -111,7 +112,11 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
             return (((pid, pk), v) for (pk, v) in pk_values)
 
         return backend.flat_map(col, rekey_by_privacy_id_and_unnest,
-                                "Rekey by privacy_id and unnest")
+                                "Rekey by privacy_id and unnest",
+                                spark_type_hint = StructType([
+                                    StructField("pidPk", StructType([col.schema[0], col.schema[1].dataType[0]]), True),
+                                    col.schema[1].dataType[1]
+                                ]))
 
 
 class SamplingPerPrivacyIdContributionBounder(ContributionBounder):

@@ -70,7 +70,8 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         max_contributions_per_partition = params.max_contributions_per_partition
         col = backend.map_tuple(
             col, lambda pid, pk, v: ((pid, pk), v),
-            "Rekey to ( (privacy_id, partition_key), value))")
+            "Rekey to ( (privacy_id, partition_key), value))",
+            StructType([StructType([col.schema[0], col.schema[1]]), col.schema[2]]))
         col = backend.sample_fixed_per_key(
             col, params.max_contributions_per_partition,
             "Sample per (privacy_id, partition_key)")

@@ -36,6 +36,7 @@ except:
 
 from pyspark.sql.functions import col, pandas_udf, struct
 from pyspark.sql.types import StructField, StructType, IntegerType
+import pandas as pd
 
 class PipelineBackend(abc.ABC):
     """Interface implemented by the pipeline backends compatible with PipelineDP."""
@@ -487,10 +488,10 @@ class SparkDataFrameBackend(PipelineBackend):
         return collection_or_iterable
 
     def map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
-        udf_func = pandas_udf(fn, spark_type_hint)
-        return df.withColumn("pipelineDpOutput", udf_func(struct([col(x) for x in df.columns]))).select("pipelineDpOutput.*")
-        raise NotImplementedError()
-        return df.map(fn)
+        def pandasFn(iterator):
+            for pdf in iterator:
+                yield pd.DataFrame(pdf.apply(fn, axis=1).to_list())
+        return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_with_side_inputs(self, df, fn, side_input_cols, stage_name: str):
         raise NotImplementedError("map_with_side_inputs "

@@ -21,7 +21,7 @@ import pipeline_dp
 from pipeline_dp import pipeline_backend
 from pipeline_dp import sampling_utils
 
-from pyspark.sql.types import StructField, StructType
+from pyspark.sql.types import LongType, StructField, StructType
 
 
 class ContributionBounder(abc.ABC):
@@ -84,7 +84,8 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         # ((privacy_id, partition_key), [value])
         col = backend.map_values(
             col, aggregate_fn,
-            "Apply aggregate_fn after per partition bounding")
+            "Apply aggregate_fn after per partition bounding",
+            spark_type_hint = StructType([StructField("pidPk", StructType([col.schema[0], col.schema[1]]), True), StructField("acc", LongType(), True)]))
         # ((privacy_id, partition_key), accumulator)
         # Cross partition bounding
         col = backend.map_tuple(

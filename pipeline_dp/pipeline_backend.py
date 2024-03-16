@@ -491,8 +491,7 @@ class SparkDataFrameBackend(PipelineBackend):
         def pandasFn(iterator):
             for pdf in iterator:
                 yield pd.DataFrame(pdf.apply(fn, axis=1).to_list())
-        a = df.mapInPandas(pandasFn, spark_type_hint)
-        return a
+        return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_with_side_inputs(self, df, fn, side_input_cols, stage_name: str):
         raise NotImplementedError("map_with_side_inputs "
@@ -505,9 +504,11 @@ class SparkDataFrameBackend(PipelineBackend):
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
         return self.map(df, lambda x: fn(**x), stage_name, spark_type_hint)
 
-    def map_values(self, df, fn, stage_name: str = None):
-        raise NotImplementedError()
-        return df.mapValues(fn)
+    def map_values(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
+        def pandasFn(iterator):
+            for pdf in iterator:
+                yield pd.DataFrame(pdf.apply(lambda x: (x[0], fn(x[1])), axis=1).to_list())
+        return df.mapInPandas(pandasFn, spark_type_hint)
 
     def group_by_key(self, df, stage_name: str = None):
         raise NotImplementedError()

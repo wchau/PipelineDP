@@ -34,7 +34,7 @@ except:
     # It is fine if Apache Beam is not installed, other backends can be used.
     pass
 
-from pyspark.sql.functions import col, udf, struct
+from pyspark.sql.functions import col, pandas_udf, struct
 from pyspark.sql.types import StructField, StructType, IntegerType
 
 class PipelineBackend(abc.ABC):
@@ -487,7 +487,7 @@ class SparkDataFrameBackend(PipelineBackend):
         return collection_or_iterable
 
     def map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
-        udf_func = udf(fn, spark_type_hint)
+        udf_func = pandas_udf(fn, spark_type_hint)
         return df.withColumn("pipelineDpOutput", udf_func(struct([col(x) for x in df.columns]))).select("pipelineDpOutput.*")
         raise NotImplementedError()
         return df.map(fn)
@@ -540,6 +540,7 @@ class SparkDataFrameBackend(PipelineBackend):
 
     def sample_fixed_per_key(self, df, n: int, stage_name: str = None):
         """See base class. The sampling is not guaranteed to be uniform."""
+        self.map(df.groupBy(df.columns[0]), lambda x: x, stage_name)
         raise NotImplementedError()
         return rdd.mapValues(lambda x: [x]).reduceByKey(
             lambda x, y: random.sample(x + y, min(len(x) + len(y), n)))

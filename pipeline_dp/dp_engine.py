@@ -27,7 +27,7 @@ from pipeline_dp import sampling_utils
 from pipeline_dp.dataset_histograms import computing_histograms
 from pipeline_dp.private_contribution_bounds import PrivateL0Calculator
 
-from pyspark.sql.types import StringType, StructField, StructType, LongType
+from pyspark.sql.types import StructField, StructType, LongType
 
 
 class DPEngine:
@@ -407,8 +407,7 @@ class DPEngine:
             (privacy_id_extractor(row), data_extractors.partition_extractor(
                 row), data_extractors.value_extractor(row)),
             "Extract (privacy_id, partition_key, value))",
-            StringType())
-            #StructType([StructField('visitor_id', LongType(), True), StructField('day', LongType(), True), StructField('spent_money', LongType(), True)]))
+            spark_type_hint = col.schema)
 
     def _check_aggregate_params(self,
                                 col,

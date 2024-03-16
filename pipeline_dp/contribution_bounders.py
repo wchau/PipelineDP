@@ -100,6 +100,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
                                            params.max_partitions_contributed,
                                            "Sample per privacy_id")
         print(col.schema)
+        print(col.collect())
 
         report_generator.add_stage(
             f"Cross-partition contribution bounding: for each privacy_id "

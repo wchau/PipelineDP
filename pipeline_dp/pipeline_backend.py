@@ -492,7 +492,6 @@ class SparkDataFrameBackend(PipelineBackend):
             for pdf in iterator:
                 yield pd.DataFrame(pdf.apply(fn, axis=1).to_list())
         a = df.mapInPandas(pandasFn, spark_type_hint)
-        print(a.collect())
         return a
 
     def map_with_side_inputs(self, df, fn, side_input_cols, stage_name: str):
@@ -543,10 +542,12 @@ class SparkDataFrameBackend(PipelineBackend):
 
     def sample_fixed_per_key(self, df, n: int, stage_name: str = None):
         """See base class. The sampling is not guaranteed to be uniform."""
-        self.map(df.groupBy(df.columns[0]), lambda x: x, stage_name)
-        raise NotImplementedError()
-        return rdd.mapValues(lambda x: [x]).reduceByKey(
-            lambda x, y: random.sample(x + y, min(len(x) + len(y), n)))
+        def sample(pdf):
+            count = pdf.count()
+            if count.size == 0:
+                return pd.DataFrame()
+            return pdf.sample(min(count[0], n))
+        return df.groupBy(df.columns[0]).applyInPandas(sample, df.schema)
 
     def count_per_element(self, df, stage_name: str = None):
         raise NotImplementedError()

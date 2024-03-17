@@ -136,7 +136,7 @@ class DPEngine:
                 params, combiner.expects_per_partition_sampling())
             col = contribution_bounder.bound_contributions(
                 col, params, self._backend, self._current_report_generator,
-                combiner.create_accumulator)
+                combiner.create_accumulator, combiner.get_accumulator_spark_data_type())
             # col : ((privacy_id, partition_key), accumulator)
 
             col = self._backend.map_tuple(col, lambda pid_pk, v: (pid_pk[1], v),

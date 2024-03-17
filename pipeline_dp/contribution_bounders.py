@@ -21,7 +21,7 @@ import pipeline_dp
 from pipeline_dp import pipeline_backend
 from pipeline_dp import sampling_utils
 
-from pyspark.sql.types import ArrayType, LongType, StructField, StructType
+from pyspark.sql.types import ArrayType, DataType, LongType, StructField, StructType
 
 
 class ContributionBounder(abc.ABC):
@@ -30,7 +30,7 @@ class ContributionBounder(abc.ABC):
     @abc.abstractmethod
     def bound_contributions(self, col, params: pipeline_dp.AggregateParams,
                             backend: pipeline_backend.PipelineBackend,
-                            aggregate_fn: Callable):
+                            aggregate_fn: Callable, spark_data_type: DataType):
         """Bound contributions of privacy id.
 
         Contribution bounding is performed to ensure that sensitivity of the
@@ -66,7 +66,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
     """
 
     def bound_contributions(self, col, params, backend, report_generator,
-                            aggregate_fn):
+                            aggregate_fn, spark_data_type):
         """See docstrings for this class and the base class."""
         max_partitions_contributed = params.max_partitions_contributed
         max_contributions_per_partition = params.max_contributions_per_partition
@@ -144,7 +144,7 @@ class SamplingPerPrivacyIdContributionBounder(ContributionBounder):
     """
 
     def bound_contributions(self, col, params, backend, report_generator,
-                            aggregate_fn):
+                            aggregate_fn, spark_data_type):
         """See docstrings for this class and the base class."""
         max_contributions = params.max_contributions
         col = backend.map_tuple(
@@ -190,7 +190,7 @@ class SamplingCrossPartitionContributionBounder(ContributionBounder):
     """
 
     def bound_contributions(self, col, params, backend, report_generator,
-                            aggregate_fn):
+                            aggregate_fn, spark_data_type):
         col = backend.map_tuple(
             col, lambda pid, pk, v: (pid, (pk, v)),
             "Rekey to ((privacy_id), (partition_key, value))")

@@ -569,7 +569,7 @@ class SparkDataFrameBackend(PipelineBackend):
 
     def sum_per_key(self, df, stage_name: str = None):
         raise NotImplementedError()
-        return rdd.reduceByKey(operator.addŻ
+        return rdd.reduceByKey(operator.add)
 
     def combine_accumulators_per_key(self,
                                      df,

@@ -68,6 +68,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
     def bound_contributions(self, col, params, backend, report_generator,
                             aggregate_fn, spark_data_type):
         """See docstrings for this class and the base class."""
+        original_columns = col.columns
         max_partitions_contributed = params.max_partitions_contributed
         max_contributions_per_partition = params.max_contributions_per_partition
         col = backend.map_tuple(
@@ -107,6 +108,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         col = backend.map_tuple(
             col, blah,
             #col, lambda pid_pk, v: (pid_pk[0], (pid_pk[1], v)),
+            col, lambda pid_pk, v: (pid_pk[original_columns[0]], (pid_pk[original_columns[1]], v)),
             "Rekey to (privacy_id, (partition_key, accumulator))",
             spark_type_hint = StructType([
                 col.schema[0].dataType[0],

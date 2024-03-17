@@ -88,12 +88,10 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
             f"partition, randomly select max(actual_contributions_per_partition"
             f", {max_contributions_per_partition}) contributions.")
         # ((privacy_id, partition_key), [value])
-        import inspect
-        print(inspect.getsource(aggregate_fn))
         col = backend.map_values(
             col, aggregate_fn,
             "Apply aggregate_fn after per partition bounding",
-            spark_type_hint = StructType([col.schema[0], StructField("acc", ArrayType(LongType()), True)]))
+            spark_type_hint = StructType([col.schema[0], StructField("accumulator", spark_data_type, True)]))
         print("Apply aggregate_fn after per partition bounding")
         print(col.schema)
         print(col.collect()[0])

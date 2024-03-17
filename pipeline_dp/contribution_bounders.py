@@ -98,15 +98,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         print(col.collect()[0])
         # ((privacy_id, partition_key), accumulator)
         # Cross partition bounding
-        def blah(pid_pk, v):
-            print("BLAH")
-            print(type(pid_pk))
-            print(pid_pk)
-            print(type(v))
-            print(v)
-            return (pid_pk[0], (pid_pk[1], v))
         col = backend.map_tuple(
-            col, blah,
             #col, lambda pid_pk, v: (pid_pk[0], (pid_pk[1], v)),
             col, lambda pid_pk, v: (pid_pk[original_columns[0]], (pid_pk[original_columns[1]], v)),
             "Rekey to (privacy_id, (partition_key, accumulator))",

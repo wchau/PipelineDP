@@ -25,6 +25,8 @@ import collections
 import pydp
 from pydp.algorithms import quantile_tree
 
+from pyspark.sql.types import ArrayType, DataType, FloatType, LongType, StringType, StructField, StructType
+
 ArrayLike = Union[np.ndarray, List[float]]
 ExplainComputationReport = Union[Callable, str, List[Union[Callable, str]]]
 
@@ -83,6 +85,10 @@ class Combiner(abc.ABC):
         combiner has the full responsibility to bound sensitivity.
         """
         return True
+    
+    @abc.abstractmethod
+    def get_accumulator_spark_data_type(self) -> DataType:
+        "Returns the spark data type for this accumulator."
 
 
 class CustomCombiner(Combiner, abc.ABC):
@@ -278,6 +284,9 @@ class CountCombiner(Combiner, AdditiveMechanismMixin):
 
     def sensitivities(self) -> dp_computations.Sensitivities:
         return self._sensitivities
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return LongType
 
 
 class PrivacyIdCountCombiner(Combiner, AdditiveMechanismMixin):
@@ -323,6 +332,9 @@ class PrivacyIdCountCombiner(Combiner, AdditiveMechanismMixin):
 
     def expects_per_partition_sampling(self) -> bool:
         return False
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return LongType
 
 
 class PostAggregationThresholdingCombiner(Combiner, MechanismContainerMixin):
@@ -380,6 +392,9 @@ class PostAggregationThresholdingCombiner(Combiner, MechanismContainerMixin):
     def create_mechanism(self) -> dp_computations.ThresholdingMechanism:
         return dp_computations.create_thresholding_mechanism(
             self.mechanism_spec(), self.sensitivities(), self._pre_threshold)
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return LongType
 
 
 class SumCombiner(Combiner, AdditiveMechanismMixin):
@@ -435,6 +450,9 @@ class SumCombiner(Combiner, AdditiveMechanismMixin):
 
     def sensitivities(self) -> dp_computations.Sensitivities:
         return self._sensitivities
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return FloatType
 
 
 class MeanCombiner(Combiner, MechanismContainerMixin):
@@ -517,6 +535,12 @@ class MeanCombiner(Combiner, MechanismContainerMixin):
     ) -> Tuple[budget_accounting.MechanismSpec,
                budget_accounting.MechanismSpec]:
         return (self._count_spec, self._sum_spec)
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return StructType([
+            StructField("count", LongType),
+            StructField("normalized_sum", FloatType)
+        ])
 
 
 class VarianceCombiner(Combiner):
@@ -585,6 +609,13 @@ class VarianceCombiner(Combiner):
 
     def mechanism_spec(self) -> budget_accounting.MechanismSpec:
         return self._params.mechanism_spec
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return StructType([
+            StructField("count", LongType),
+            StructField("normalized_sum", FloatType),
+            StructField("normalized_sum_of_squares", FloatType)
+        ])
 
 
 class QuantileCombiner(Combiner):
@@ -667,6 +698,9 @@ class QuantileCombiner(Combiner):
 
     def mechanism_spec(self) -> budget_accounting.MechanismSpec:
         return self._params.mechanism_spec
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return StringType
 
 
 # Cache for namedtuple types. It should be used only in
@@ -795,6 +829,17 @@ class CompoundCombiner(Combiner):
 
     def expects_per_partition_sampling(self) -> bool:
         return any(c.expects_per_partition_sampling() for c in self._combiners)
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return StructType([
+            StructField("num_rows", LongType),
+            StructField(
+                "accumulators",
+                StructType(
+                    [StructField(f"acc_{idx}", combiner.get_accumulator_spark_data_type()) for idx, combiner in enumerate(self._combiners)]
+                )
+            )
+        ])
 
 
 class VectorSumCombiner(Combiner):
@@ -844,6 +889,9 @@ class VectorSumCombiner(Combiner):
 
     def mechanism_spec(self) -> budget_accounting.MechanismSpec:
         return self._params.mechanism_spec
+    
+    def get_accumulator_spark_data_type(self) -> DataType:
+        return ArrayType(FloatType)
 
 
 def create_compound_combiner(

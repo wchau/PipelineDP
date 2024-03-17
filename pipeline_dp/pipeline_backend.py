@@ -548,7 +548,7 @@ class SparkDataFrameBackend(PipelineBackend):
         def sample(key, pdf):
             count = pdf.count()
             def convertToList(x):
-                if (x.isinstance(pd.Series)):
+                if (isinstance(x, pd.Series)):
                     return list(x)
                 return [x]
             sample_list = pdf[pdf.columns[1]].sample(min(count[0], n)).agg(convertToList)

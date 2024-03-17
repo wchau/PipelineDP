@@ -554,7 +554,7 @@ class SparkDataFrameBackend(PipelineBackend):
             sample,
             StructType([
                 df.schema[0],
-                ArrayType(df.schema[1])
+                StructField(df.schema[1].name, ArrayType(df.schema[1].dataType))
             ]))
 
     def count_per_element(self, df, stage_name: str = None):

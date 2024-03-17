@@ -504,6 +504,10 @@ class SparkDataFrameBackend(PipelineBackend):
         return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
+        def signature(x):
+            if (stage_name == "Rekey to (privacy_id, (partition_key, accumulator))"):
+                print(x)
+            return fn(*x)
         return self.map(df, lambda x: fn(*x), stage_name, spark_type_hint)
 
     def map_values(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):

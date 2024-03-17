@@ -549,7 +549,8 @@ class SparkDataFrameBackend(PipelineBackend):
             count = pdf.count()
             if count.size == 0:
                 return pd.DataFrame()
-            return pdf.groupby(pdf.columns[0]).agg(lambda x: list(x))
+            print("HAHAHA")
+            print(pdf.info())
             return pdf.sample(min(count[0], n)).groupby(pdf.columns[0]).agg(lambda x: list(x))
         return df.groupBy(df.columns[0]).applyInPandas(
             sample,

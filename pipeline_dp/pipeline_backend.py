@@ -552,10 +552,10 @@ class SparkDataFrameBackend(PipelineBackend):
             return pdf.sample(min(count[0], n)).groupby(pdf.columns[0]).agg(lambda x: list(x))
         return df.groupBy(df.columns[0]).applyInPandas(
             sample,
-            StructType(
+            StructType([
                 df.schema[0],
                 ArrayType(df.schema[1])
-            ))
+            ]))
 
     def count_per_element(self, df, stage_name: str = None):
         raise NotImplementedError()

@@ -549,9 +549,13 @@ class SparkDataFrameBackend(PipelineBackend):
             count = pdf.count()
             print("BLAH")
             print(count)
+            print("BLAH2")
             def blah(x):
+                print("BLAH3")
                 print(type(x))
+                print("BLAH4")
                 print(x)
+                print("BLAH5")
                 return list(x)
             sample_list = pdf[pdf.columns[1]].sample(min(count[0], n)).agg(blah)
             return pd.DataFrame([key + (sample_list,)])

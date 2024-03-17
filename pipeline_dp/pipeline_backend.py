@@ -548,9 +548,9 @@ class SparkDataFrameBackend(PipelineBackend):
         def sample(key, pdf):
             count = pdf.count()
             def convertToList(x):
-                print("BLAH1")
-                print(x)
-                print("BLAH2")
+                # We want the vectorized version as the aggregate, not the row by row.
+                # Pandas probes the function, so we need to return the appropriate
+                # errors.
                 if (isinstance(x, pd.Series)):
                     return list(x)
                 raise ValueError

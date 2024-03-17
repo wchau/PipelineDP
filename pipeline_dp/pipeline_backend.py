@@ -553,7 +553,7 @@ class SparkDataFrameBackend(PipelineBackend):
                 print("BLAH2")
                 if (isinstance(x, pd.Series)):
                     return list(x)
-                return [x]
+                raise ValueError
             sample_list = pdf[pdf.columns[1]].sample(min(count[0], n)).agg(convertToList)
             return pd.DataFrame([key + (sample_list,)])
         return df.groupBy(df.columns[0]).applyInPandas(

@@ -547,8 +547,9 @@ class SparkDataFrameBackend(PipelineBackend):
         """See base class. The sampling is not guaranteed to be uniform."""
         def sample(key, pdf):
             count = pdf.count()
+            print("BLAH")
+            print(count)
             def blah(x):
-                print("BLAH")
                 print(x)
                 return list(x)
             sample_list = pdf[pdf.columns[1]].sample(min(count[0], n)).agg(blah)

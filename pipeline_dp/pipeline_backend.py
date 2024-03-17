@@ -548,6 +548,9 @@ class SparkDataFrameBackend(PipelineBackend):
         def sample(key, pdf):
             count = pdf.count()
             def convertToList(x):
+                print("BLAH1")
+                print(x)
+                print("BLAH2")
                 if (isinstance(x, pd.Series)):
                     return list(x)
                 return [x]
@@ -566,7 +569,7 @@ class SparkDataFrameBackend(PipelineBackend):
 
     def sum_per_key(self, df, stage_name: str = None):
         raise NotImplementedError()
-        return rdd.reduceByKey(operator.add)
+        return rdd.reduceByKey(operator.addŻ
 
     def combine_accumulators_per_key(self,
                                      df,

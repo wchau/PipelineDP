@@ -286,7 +286,7 @@ class CountCombiner(Combiner, AdditiveMechanismMixin):
         return self._sensitivities
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return LongType
+        return LongType()
 
 
 class PrivacyIdCountCombiner(Combiner, AdditiveMechanismMixin):
@@ -334,7 +334,7 @@ class PrivacyIdCountCombiner(Combiner, AdditiveMechanismMixin):
         return False
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return LongType
+        return LongType()
 
 
 class PostAggregationThresholdingCombiner(Combiner, MechanismContainerMixin):
@@ -394,7 +394,7 @@ class PostAggregationThresholdingCombiner(Combiner, MechanismContainerMixin):
             self.mechanism_spec(), self.sensitivities(), self._pre_threshold)
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return LongType
+        return LongType()
 
 
 class SumCombiner(Combiner, AdditiveMechanismMixin):
@@ -452,7 +452,7 @@ class SumCombiner(Combiner, AdditiveMechanismMixin):
         return self._sensitivities
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return FloatType
+        return FloatType()
 
 
 class MeanCombiner(Combiner, MechanismContainerMixin):
@@ -538,8 +538,8 @@ class MeanCombiner(Combiner, MechanismContainerMixin):
     
     def get_accumulator_spark_data_type(self) -> DataType:
         return StructType([
-            StructField("count", LongType),
-            StructField("normalized_sum", FloatType)
+            StructField("count", LongType()),
+            StructField("normalized_sum", FloatType())
         ])
 
 
@@ -612,9 +612,9 @@ class VarianceCombiner(Combiner):
     
     def get_accumulator_spark_data_type(self) -> DataType:
         return StructType([
-            StructField("count", LongType),
-            StructField("normalized_sum", FloatType),
-            StructField("normalized_sum_of_squares", FloatType)
+            StructField("count", LongType()),
+            StructField("normalized_sum", FloatType()),
+            StructField("normalized_sum_of_squares", FloatType())
         ])
 
 
@@ -700,7 +700,7 @@ class QuantileCombiner(Combiner):
         return self._params.mechanism_spec
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return StringType
+        return StringType()
 
 
 # Cache for namedtuple types. It should be used only in
@@ -832,7 +832,7 @@ class CompoundCombiner(Combiner):
     
     def get_accumulator_spark_data_type(self) -> DataType:
         return StructType([
-            StructField("num_rows", LongType),
+            StructField("num_rows", LongType()),
             StructField(
                 "accumulators",
                 StructType(
@@ -891,7 +891,7 @@ class VectorSumCombiner(Combiner):
         return self._params.mechanism_spec
     
     def get_accumulator_spark_data_type(self) -> DataType:
-        return ArrayType(FloatType)
+        return ArrayType(FloatType())
 
 
 def create_compound_combiner(

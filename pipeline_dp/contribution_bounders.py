@@ -99,7 +99,9 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         # Cross partition bounding
         def blah(pid_pk, v):
             print("BLAH")
+            print(type(pid_pk))
             print(pid_pk)
+            print(type(v))
             print(v)
             return (pid_pk[0], (pid_pk[1], v))
         col = backend.map_tuple(

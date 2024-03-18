@@ -131,7 +131,8 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
             print(pid)
             print(pk_values)
             print("rekey3")
-            return [((pid, pk), v) for (pk, v) in pk_values]
+            return [((pid, entry[original_columns[0]]), entry["accumulator"]) for entry in pk_values]
+            #return [((pid, pk), v) for (pk, v) in pk_values]
 
         return backend.flat_map(col, rekey_by_privacy_id_and_unnest,
                                 "Rekey by privacy_id and unnest",

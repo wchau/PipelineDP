@@ -500,8 +500,8 @@ class SparkDataFrameBackend(PipelineBackend):
     def flat_map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
         def pandasFn(iterator):
             for pdf in iterator:
-                print("BLAH")
                 result = pdf.apply(fn, axis=1).explode().to_list()
+                print("BLAH")
                 print(result[0])
                 yield pd.DataFrame(result)
         return df.mapInPandas(pandasFn, spark_type_hint)

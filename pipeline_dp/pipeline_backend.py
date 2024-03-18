@@ -500,10 +500,7 @@ class SparkDataFrameBackend(PipelineBackend):
     def flat_map(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
         def pandasFn(iterator):
             for pdf in iterator:
-                result = pdf.apply(fn, axis=1).explode().to_list()
-                print("BLAH")
-                print(result[0])
-                yield pd.DataFrame(result)
+                yield pd.DataFrame(pdf.apply(fn, axis=1).explode().to_list())
         return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):
@@ -578,6 +575,9 @@ class SparkDataFrameBackend(PipelineBackend):
                                      df,
                                      combiner: dp_combiners.Combiner,
                                      stage_name: str = None):
+        def combine_accumulators(key, pdf):
+            functools.reduce(lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2), pdf[pdf.columns[1]])
+        return df.groupBy(df.columns[0]).applyInPandas(combine_accumulators)
         raise NotImplementedError()
         return rdd.reduceByKey(
             lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2))

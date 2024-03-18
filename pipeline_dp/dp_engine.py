@@ -137,10 +137,19 @@ class DPEngine:
             col = contribution_bounder.bound_contributions(
                 col, params, self._backend, self._current_report_generator,
                 combiner.create_accumulator, combiner.get_accumulator_spark_data_type())
+            print("bound_contributions")
+            print(col.schema)
+            print(col.collect()[0])
             # col : ((privacy_id, partition_key), accumulator)
-
             col = self._backend.map_tuple(col, lambda pid_pk, v: (pid_pk[1], v),
-                                          "Drop privacy id")
+                                          "Drop privacy id",
+                                          spark_type_hint = StructType([
+                                              col.schema[0].dataType.fields[1],
+                                              col.schema[1]
+                                          ]))
+            print("Drop privacy id")
+            print(col.schema)
+            print(col.collect()[0])
             # col : (partition_key, accumulator)
         else:
             col = self._backend.map(col, lambda row: row[1:],

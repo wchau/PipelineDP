@@ -75,15 +75,15 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
             col, lambda pid, pk, v: ((pid, pk), v),
             "Rekey to ( (privacy_id, partition_key), value))",
             spark_type_hint = StructType([StructField("pidPk", StructType([col.schema[0], col.schema[1]]), True), col.schema[2]]))
-        print("Rekey to ( (privacy_id, partition_key), value))")
-        print(col.schema)
-        print(col.collect()[0])
+        #print("Rekey to ( (privacy_id, partition_key), value))")
+        #print(col.schema)
+        #print(col.collect()[0])
         col = backend.sample_fixed_per_key(
             col, params.max_contributions_per_partition,
             "Sample per (privacy_id, partition_key)")
-        print("Sample per (privacy_id, partition_key)")
-        print(col.schema)
-        print(col.collect()[0])
+        #print("Sample per (privacy_id, partition_key)")
+        #print(col.schema)
+        #print(col.collect()[0])
         report_generator.add_stage(
             f"Per-partition contribution bounding: for each privacy_id and each"
             f"partition, randomly select max(actual_contributions_per_partition"
@@ -93,9 +93,9 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
             col, aggregate_fn,
             "Apply aggregate_fn after per partition bounding",
             spark_type_hint = StructType([col.schema[0], StructField("accumulator", spark_data_type, True)]))
-        print("Apply aggregate_fn after per partition bounding")
-        print(col.schema)
-        print(col.collect()[0])
+        #print("Apply aggregate_fn after per partition bounding")
+        #print(col.schema)
+        #print(col.collect()[0])
         # ((privacy_id, partition_key), accumulator)
         # Cross partition bounding
         col = backend.map_tuple(
@@ -107,15 +107,15 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
                 StructField("pkV", StructType([col.schema[0].dataType[1], col.schema[1]]))
             ])
         )
-        print("Rekey to (privacy_id, (partition_key, accumulator))")
-        print(col.schema)
-        print(col.collect()[0])
+        #print("Rekey to (privacy_id, (partition_key, accumulator))")
+        #print(col.schema)
+        #print(col.collect()[0])
         col = backend.sample_fixed_per_key(col,
                                            params.max_partitions_contributed,
                                            "Sample per privacy_id")
-        print("Sample per privacy_id")
-        print(col.schema)
-        print(col.collect()[0])
+        #print("Sample per privacy_id")
+        #print(col.schema)
+        #print(col.collect()[0])
 
         report_generator.add_stage(
             f"Cross-partition contribution bounding: for each privacy_id "

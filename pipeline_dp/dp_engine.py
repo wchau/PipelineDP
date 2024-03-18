@@ -134,6 +134,7 @@ class DPEngine:
         if not params.contribution_bounds_already_enforced:
             contribution_bounder = self._create_contribution_bounder(
                 params, combiner.expects_per_partition_sampling())
+            pid_col_name, pk_col_name, val_col_name = col.columns
             col = contribution_bounder.bound_contributions(
                 col, params, self._backend, self._current_report_generator,
                 combiner.create_accumulator, combiner.get_accumulator_spark_data_type())
@@ -141,7 +142,8 @@ class DPEngine:
             print(col.schema)
             print(col.collect()[0])
             # col : ((privacy_id, partition_key), accumulator)
-            col = self._backend.map_tuple(col, lambda pid_pk, v: (pid_pk[1], v),
+            col = self._backend.map_tuple(#col, lambda pid_pk, v: (pid_pk[1], v),
+                                          col, lambda pid_pk, v: (pid_pk[pk_col_name], v),
                                           "Drop privacy id",
                                           spark_type_hint = StructType([
                                               col.schema[0].dataType.fields[1],

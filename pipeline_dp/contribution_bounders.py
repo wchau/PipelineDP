@@ -124,13 +124,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
 
         # (privacy_id, [(partition_key, accumulator)])
         def rekey_by_privacy_id_and_unnest(pid_pk_v):
-            print("rekey")
-            print(pid_pk_v)
-            print("rekey2")
             pid, pk_values = pid_pk_v
-            print(pid)
-            print(pk_values)
-            print("rekey3")
             return [((pid, entry[pk_col_name]), entry["accumulator"]) for entry in pk_values]
             #return [((pid, pk), v) for (pk, v) in pk_values]
 

@@ -576,7 +576,8 @@ class SparkDataFrameBackend(PipelineBackend):
                                      combiner: dp_combiners.Combiner,
                                      stage_name: str = None):
         def combine_accumulators(key, pdf):
-            functools.reduce(lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2), pdf[pdf.columns[1]])
+            result = functools.reduce(lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2), pdf[pdf.columns[1]])
+            return pd.DataFrame([key + (result,)])
         return df.groupBy(df.columns[0]).applyInPandas(
             combine_accumulators,
             df.schema)

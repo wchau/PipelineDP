@@ -501,9 +501,9 @@ class SparkDataFrameBackend(PipelineBackend):
         def pandasFn(iterator):
             for pdf in iterator:
                 print("BLAH")
-                result = pd.DataFrame(pdf.apply(fn, axis=1).explode().to_list()
+                result = pdf.apply(fn, axis=1).explode().to_list()
                 print(result[0])
-                yield result
+                yield pd.DataFrame(result)
         return df.mapInPandas(pandasFn, spark_type_hint)
 
     def map_tuple(self, df, fn, stage_name: str = None, spark_type_hint: StructType = None):

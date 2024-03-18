@@ -171,6 +171,9 @@ class DPEngine:
         col = self._backend.combine_accumulators_per_key(
             col, combiner, "Reduce accumulators per partition key")
         # col : (partition_key, accumulator)
+        print("Reduce accumulators per partition key")
+        print(col.schema)
+        print(col.collect()[0])
 
         if public_partitions is None and not params.post_aggregation_thresholding:
             # Perform private partition selection.

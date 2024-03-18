@@ -575,11 +575,10 @@ class SparkDataFrameBackend(PipelineBackend):
                                      df,
                                      combiner: dp_combiners.Combiner,
                                      stage_name: str = None):
-        def combine_accumulators(key, pdf):
-            result = functools.reduce(lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2), pdf[pdf.columns[1]])
-            return pd.DataFrame([key + (result,)])
+        def reduce(pdf):
+            return functools.reduce(lambda acc1, acc2: combiner.merge_accumulators(acc1, acc2), pdf[pdf.columns[1]])
         return df.groupBy(df.columns[0]).applyInPandas(
-            combine_accumulators,
+            lambda key, pdf: pd.DataFrame([key + (pdf[pdf.columns[1]].agg(reduce),)]),
             df.schema)
         raise NotImplementedError()
         return rdd.reduceByKey(

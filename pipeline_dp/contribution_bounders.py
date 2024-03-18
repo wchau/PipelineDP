@@ -130,8 +130,8 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         return backend.flat_map(col, rekey_by_privacy_id_and_unnest,
                                 "Rekey by privacy_id and unnest",
                                 spark_type_hint = StructType([
-                                    StructField("pidPk", StructType([col.schema[0], col.schema[1].dataType[0]]), True),
-                                    col.schema[1].dataType[1]
+                                    StructField("pidPk", StructType([col.schema[0], col.schema[1].dataType.elementType.fields[0]]), True),
+                                    col.schema[1].dataType.elementType.fields[1]
                                 ]))
 
 

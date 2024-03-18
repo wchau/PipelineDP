@@ -125,7 +125,7 @@ class SamplingCrossAndPerPartitionContributionBounder(ContributionBounder):
         # (privacy_id, [(partition_key, accumulator)])
         def rekey_by_privacy_id_and_unnest(pid_pk_v):
             pid, pk_values = pid_pk_v
-            return (((pid, pk), v) for (pk, v) in pk_values)
+            return [((pid, pk), v) for (pk, v) in pk_values]
 
         return backend.flat_map(col, rekey_by_privacy_id_and_unnest,
                                 "Rekey by privacy_id and unnest",
